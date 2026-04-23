@@ -1,6 +1,5 @@
 /**
  * Quickbasket — Main Application Entry Point
- * Initializes the router, store, and renders the initial page
  */
 
 import { addRoute, initRouter } from './router.js';
@@ -8,17 +7,30 @@ import { fetchCart } from './store.js';
 import { renderHomePage } from './pages/home.js';
 import { renderCartPage } from './pages/cart.js';
 import { renderCheckoutPage } from './pages/checkout.js';
+import { renderLoginPage } from './pages/login.js';
+import { renderSignupPage } from './pages/signup.js';
+import { renderOrdersPage } from './pages/orders.js';
+import { renderAnalyticsPage } from './pages/analytics.js';
+import { renderHeader } from './components/header.js';
 import { renderFooter } from './components/footer.js';
 
 // Register routes
 addRoute('/', renderHomePage);
 addRoute('/cart', renderCartPage);
 addRoute('/checkout', renderCheckoutPage);
+addRoute('/login', renderLoginPage);
+addRoute('/signup', renderSignupPage);
+addRoute('/orders', renderOrdersPage);
+addRoute('/analytics', renderAnalyticsPage);
 
 // Initialize the app
 async function init() {
   // Render static components
+  renderHeader();
   renderFooter();
+
+  // Listen to route changes to update header active states
+  window.addEventListener('hashchange', renderHeader);
 
   // Fetch initial cart state
   await fetchCart();

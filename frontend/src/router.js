@@ -21,6 +21,7 @@ export function addRoute(path, handler) {
 export function navigate(path) {
   window.location.hash = path;
 }
+export const navigateTo = navigate;
 
 /**
  * Get current route from hash

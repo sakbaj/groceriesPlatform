@@ -213,7 +213,7 @@ function showOrderConfirmation(main, order) {
     <div class="order-confirmation">
       <div class="order-success-icon">🎉</div>
       <h2 class="order-success-title">Order Confirmed!</h2>
-      <p class="order-success-id">Order #${order.id} • ${new Date(order.createdAt).toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</p>
+      <p class="order-success-id">Order #${order._id} • ${new Date(order.createdAt).toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</p>
 
       <div class="order-details-card">
         <div class="order-detail-row">

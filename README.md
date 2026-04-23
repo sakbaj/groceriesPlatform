@@ -1,99 +1,105 @@
-# 🛒 Quickbasket — Grocery Selling Application
+# Quickbasket 🛒
 
-A premium, full-stack grocery shopping application built with **Node.js/Express** backend and **Vite + Vanilla JS** frontend.
+A full-stack grocery platform featuring a persistent MongoDB backend, JWT authentication, cart management, and user order history. 
 
-## Features
+**[Live Demo Link (Vercel Frontend) -> Replace with your link here]**  
+**[Live API Link (Render Backend) -> Replace with your link here]**
 
-- 🏪 **Browse 50+ Grocery Items** across 6 categories (Fruits, Vegetables, Dairy, Bakery, Beverages, Snacks)
-- 🔍 **Search & Filter** — real-time search with category filtering
-- 🛒 **Shopping Cart** — add, remove, update quantities with live totals
-- 📋 **Checkout Flow** — customer details form with order placement
-- 🎉 **Order Confirmation** — detailed order summary after successful checkout
-- 🌙 **Premium Dark Mode** — glassmorphism UI with smooth animations
-- 📱 **Responsive Design** — works on desktop, tablet, and mobile
+---
 
-## Tech Stack
+## 🌟 Features
 
-| Layer | Technology |
-|---|---|
-| Backend | Node.js + Express.js |
-| Frontend | Vite + Vanilla JS |
-| Data | In-memory store with JSON seed data |
-| Styling | Vanilla CSS (Dark theme, Glassmorphism) |
+- **Authentication:** Secure login and signup using JSON Web Tokens (JWT).
+- **Database:** Persistent data storage using MongoDB and Mongoose.
+- **Cart Management:** Add items to cart, adjust quantities, and persistent state.
+- **Order History:** Users can view their previous orders.
+- **Analytics Dashboard:** Platform-wide stats on sales and popular items.
+- **API Documentation:** Interactive Swagger UI for exploring the backend API endpoints.
 
-## Getting Started
+---
 
-### Prerequisites
-- Node.js 18+ installed
+## 🛠 Tech Stack
 
-### 1. Start the Backend
+**Frontend:**
+- Vanilla JavaScript (ESModules)
+- Vite (Build Tool & Dev Server)
+- Pure CSS (Custom properties, Flexbox, CSS Grid)
 
-```bash
+**Backend:**
+- Node.js & Express.js
+- MongoDB & Mongoose ORM
+- JSON Web Token (JWT) & bcryptjs
+- Swagger UI (API Docs)
+
+---
+
+## 🚀 Local Setup
+
+### 1. Backend Setup
+
+Open a terminal and navigate to the `backend` folder:
+\`\`\`bash
 cd backend
 npm install
-npm run dev
-```
+\`\`\`
 
-Backend runs at **http://localhost:3001**
+Create a \`.env\` file in the `backend` folder:
+\`\`\`env
+PORT=3001
+# Use 'memory' to use an in-memory MongoDB server for testing, or put your MongoDB connection string here.
+MONGO_URI=memory
+JWT_SECRET=supersecretquickbasketkey2026
+\`\`\`
 
-### 2. Start the Frontend
+Start the backend server:
+\`\`\`bash
+npm start
+\`\`\`
+*The server will start on http://localhost:3001 and automatically seed the database with initial products.*
+*API Docs available at: http://localhost:3001/api-docs*
 
-```bash
+### 2. Frontend Setup
+
+Open a new terminal and navigate to the `frontend` folder:
+\`\`\`bash
 cd frontend
 npm install
+\`\`\`
+
+Ensure the \`API_BASE\` in \`frontend/src/api.js\` is set to \`http://localhost:3001/api\`.
+
+Start the frontend server:
+\`\`\`bash
 npm run dev
-```
+\`\`\`
+*The application will open at http://localhost:5173*
 
-Frontend runs at **http://localhost:5173**
+---
 
-### 3. Open the App
+## 🌍 Public Deployment Instructions
 
-Visit **http://localhost:5173** in your browser.
+### Frontend (Vercel)
+1. In `frontend/src/api.js`, update `API_BASE` to point to your live backend URL.
+2. Push your code to GitHub.
+3. Import the `frontend` directory as a new Project in Vercel. 
+4. The included `vercel.json` will ensure proper routing.
 
-## Project Structure
+### Backend (Render / Heroku)
+1. Push your code to GitHub.
+2. Connect your repository to Render/Heroku and set the Root Directory to `backend`.
+3. Add the Environment Variables:
+   - `MONGO_URI`: Your MongoDB Atlas connection string.
+   - `JWT_SECRET`: A secure random string.
+   - `NODE_ENV`: production
+4. Start command: `npm start`.
 
-```
-├── backend/
-│   ├── server.js              # Express entry point
-│   ├── data/products.json     # 50 grocery items seed data
-│   ├── models/                # Product, Cart, Order models
-│   ├── routes/                # API route handlers
-│   └── middleware/            # Error handling
-├── frontend/
-│   ├── index.html             # App shell
-│   ├── vite.config.js         # Vite + API proxy config
-│   └── src/
-│       ├── main.js            # App initialization
-│       ├── api.js             # Backend API client
-│       ├── router.js          # Client-side hash router
-│       ├── store.js           # Reactive cart state
-│       ├── components/        # Reusable UI components
-│       ├── pages/             # Page renderers
-│       └── styles/            # CSS design system
-└── README.md
-```
+---
 
-## API Endpoints
+## 📸 Screenshots
 
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| GET | `/api/products` | List products (?category, ?search) |
-| GET | `/api/products/:id` | Get single product |
-| GET | `/api/categories` | List all categories |
-| GET | `/api/cart` | Get current cart |
-| POST | `/api/cart` | Add item to cart |
-| PUT | `/api/cart/:productId` | Update quantity |
-| DELETE | `/api/cart/:productId` | Remove item |
-| DELETE | `/api/cart` | Clear cart |
-| POST | `/api/orders` | Place order |
-| GET | `/api/orders` | List all orders |
-| GET | `/api/orders/:id` | Get single order |
+*(Add screenshots of your application here)*
 
-## Agent Roles
-
-This app was built by 4 AI agents working in coordination:
-
-1. **Agent 1 (Planning)** — System architecture, data models, API contracts, folder structure
-2. **Agent 2 (Backend)** — Express.js server, routes, models, seed data
-3. **Agent 3 (Frontend)** — Vite app, components, pages, CSS design system
-4. **Agent 4 (Integration)** — Proxy config, testing, verification, documentation
+- **Home Page:** Showcasing the product catalog.
+- **Cart:** Cart with quantity management.
+- **Orders:** User order history.
+- **Analytics:** Basic dashboard statistics.

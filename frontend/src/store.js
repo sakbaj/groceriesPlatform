@@ -38,10 +38,16 @@ export function getState() {
 export async function fetchCart() {
   try {
     const res = await api.getCart();
-    cartState = res.data;
+    if (res.success && res.data) {
+      cartState = res.data;
+    } else {
+      // Not logged in or error — reset to empty cart
+      cartState = { items: [], total: 0, itemCount: 0 };
+    }
     notify();
   } catch (err) {
     console.error('Failed to fetch cart:', err);
+    cartState = { items: [], total: 0, itemCount: 0 };
   }
   return cartState;
 }
@@ -50,38 +56,34 @@ export async function fetchCart() {
  * Add item to cart
  */
 export async function addItem(productId, quantity = 1) {
-  const res = await api.addToCart(productId, quantity);
-  cartState = res.data;
-  notify();
-  return cartState;
+  await api.addToCart(productId, quantity);
+  // Re-fetch the full cart since the API only returns { success: true }
+  return await fetchCart();
 }
 
 /**
  * Update item quantity
  */
 export async function updateItem(productId, quantity) {
-  const res = await api.updateCartItem(productId, quantity);
-  cartState = res.data;
-  notify();
-  return cartState;
+  await api.updateCartItem(productId, quantity);
+  // Re-fetch the full cart since the API only returns { success: true }
+  return await fetchCart();
 }
 
 /**
  * Remove item from cart
  */
 export async function removeItem(productId) {
-  const res = await api.removeFromCart(productId);
-  cartState = res.data;
-  notify();
-  return cartState;
+  await api.removeFromCart(productId);
+  // Re-fetch the full cart since the API only returns { success: true }
+  return await fetchCart();
 }
 
 /**
  * Clear entire cart
  */
 export async function clearAll() {
-  const res = await api.clearCart();
-  cartState = res.data;
-  notify();
-  return cartState;
+  await api.clearCart();
+  // Re-fetch the full cart since the API only returns { success: true }
+  return await fetchCart();
 }

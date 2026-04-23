@@ -1,86 +1,145 @@
 /**
  * Quickbasket API Client
- * Handles all communication with the backend server
  */
 
-const BASE = '/api';
+const API_BASE = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+  ? 'http://localhost:3001/api'
+  : '/api';
 
-async function request(url, options = {}) {
-  const res = await fetch(`${BASE}${url}`, {
-    headers: { 'Content-Type': 'application/json' },
-    ...options
-  });
-
-  const data = await res.json();
-
-  if (!res.ok || !data.success) {
-    throw new Error(data.error || 'Something went wrong');
+function getHeaders() {
+  const headers = { 'Content-Type': 'application/json' };
+  const token = localStorage.getItem('qb_token');
+  if (token) {
+    headers['Authorization'] = `Bearer ${token}`;
   }
+  return headers;
+}
 
+// ---- Auth ----
+
+export async function login(email, password) {
+  const res = await fetch(`${API_BASE}/auth/login`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email, password })
+  });
+  const data = await res.json();
+  if (!data.success) throw new Error(data.error || 'Login failed');
+  localStorage.setItem('qb_token', data.data.token);
+  localStorage.setItem('qb_user', JSON.stringify(data.data));
   return data;
+}
+
+export async function register(name, email, password) {
+  const res = await fetch(`${API_BASE}/auth/register`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ name, email, password })
+  });
+  const data = await res.json();
+  if (!data.success) throw new Error(data.error || 'Registration failed');
+  localStorage.setItem('qb_token', data.data.token);
+  localStorage.setItem('qb_user', JSON.stringify(data.data));
+  return data;
+}
+
+export function logout() {
+  localStorage.removeItem('qb_token');
+  localStorage.removeItem('qb_user');
+  window.location.hash = '#/login';
+}
+
+export function getUser() {
+  const u = localStorage.getItem('qb_user');
+  return u ? JSON.parse(u) : null;
 }
 
 // ---- Products ----
 
 export async function getProducts(params = {}) {
-  const query = new URLSearchParams();
-  if (params.category) query.set('category', params.category);
-  if (params.search) query.set('search', params.search);
-  const qs = query.toString();
-  return request(`/products${qs ? '?' + qs : ''}`);
+  const cleanParams = Object.fromEntries(
+    Object.entries(params).filter(([_, v]) => v != null && v !== '')
+  );
+  const q = new URLSearchParams(cleanParams).toString();
+  const res = await fetch(`${API_BASE}/products${q ? '?' + q : ''}`);
+  return await res.json();
 }
 
 export async function getProduct(id) {
-  return request(`/products/${id}`);
+  const res = await fetch(`${API_BASE}/products/${id}`);
+  return await res.json();
 }
 
 export async function getCategories() {
-  return request('/categories');
+  const res = await fetch(`${API_BASE}/products/categories`);
+  return await res.json();
 }
 
 // ---- Cart ----
 
 export async function getCart() {
-  return request('/cart');
+  const res = await fetch(`${API_BASE}/cart`, { headers: getHeaders() });
+  return await res.json();
 }
 
 export async function addToCart(productId, quantity = 1) {
-  return request('/cart', {
+  const res = await fetch(`${API_BASE}/cart/items`, {
     method: 'POST',
+    headers: getHeaders(),
     body: JSON.stringify({ productId, quantity })
   });
+  return await res.json();
 }
 
 export async function updateCartItem(productId, quantity) {
-  return request(`/cart/${productId}`, {
+  const res = await fetch(`${API_BASE}/cart/items/${productId}`, {
     method: 'PUT',
+    headers: getHeaders(),
     body: JSON.stringify({ quantity })
   });
+  return await res.json();
 }
 
 export async function removeFromCart(productId) {
-  return request(`/cart/${productId}`, {
-    method: 'DELETE'
+  const res = await fetch(`${API_BASE}/cart/items/${productId}`, {
+    method: 'DELETE',
+    headers: getHeaders()
   });
+  return await res.json();
 }
 
 export async function clearCart() {
-  return request('/cart', { method: 'DELETE' });
+  const res = await fetch(`${API_BASE}/cart`, {
+    method: 'DELETE',
+    headers: getHeaders()
+  });
+  return await res.json();
 }
 
 // ---- Orders ----
 
 export async function placeOrder(customerInfo) {
-  return request('/orders', {
+  const res = await fetch(`${API_BASE}/orders`, {
     method: 'POST',
+    headers: getHeaders(),
     body: JSON.stringify(customerInfo)
   });
+  return await res.json();
 }
 
 export async function getOrders() {
-  return request('/orders');
+  const res = await fetch(`${API_BASE}/orders`, { headers: getHeaders() });
+  return await res.json();
 }
 
 export async function getOrder(id) {
-  return request(`/orders/${id}`);
+  const res = await fetch(`${API_BASE}/orders/${id}`, { headers: getHeaders() });
+  return await res.json();
+}
+
+// ---- Analytics ----
+
+export async function getAnalytics() {
+  const res = await fetch(`${API_BASE}/analytics`, { headers: getHeaders() });
+  return await res.json();
 }
