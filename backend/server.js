@@ -36,7 +36,9 @@ const swaggerOptions = {
       version: '1.0.0',
       description: 'Quickbasket Grocery Platform API Documentation',
     },
-    servers: [{ url: `http://localhost:${PORT}` }],
+    servers: [
+      { url: process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : `http://localhost:${PORT}` }
+    ],
     components: {
       securitySchemes: {
         bearerAuth: {
@@ -48,7 +50,7 @@ const swaggerOptions = {
     },
     security: [{ bearerAuth: [] }]
   },
-  apis: ['./routes/*.js'],
+  apis: [path.join(__dirname, 'routes', '*.js')],
 };
 const swaggerDocs = swaggerJsDoc(swaggerOptions);
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocs));
