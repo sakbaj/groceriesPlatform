@@ -17,11 +17,12 @@ export async function renderOrdersPage() {
 
     if (orders.length === 0) {
       mainEl.innerHTML = `
-        <div style="max-width: 800px; margin: 2rem auto; padding: 1rem;">
-          <h2 style="margin-bottom: 1rem;">Order History</h2>
-          <div style="background: var(--surface); padding: 3rem; text-align: center; border-radius: 1rem; border: 1px solid var(--border);">
-            <p style="color: var(--text-secondary); margin-bottom: 1rem;">You haven't placed any orders yet.</p>
-            <a href="#/" class="checkout-btn" style="display: inline-block; text-decoration: none;">Start Shopping</a>
+        <div class="dashboard-container fade-in">
+          <h2 class="dashboard-title">Order History</h2>
+          <div class="cart-empty">
+            <div class="cart-empty-icon">📦</div>
+            <p class="cart-empty-text">You haven't placed any orders yet.</p>
+            <a href="#/" class="btn-shop-now" style="text-decoration: none;">Start Shopping</a>
           </div>
         </div>
       `;
@@ -29,35 +30,38 @@ export async function renderOrdersPage() {
     }
 
     const ordersHtml = orders.map(order => `
-      <div style="background: var(--surface); border: 1px solid var(--border); border-radius: 1rem; padding: 1.5rem; margin-bottom: 1.5rem;">
-        <div style="display: flex; justify-content: space-between; border-bottom: 1px solid var(--border); padding-bottom: 1rem; margin-bottom: 1rem;">
+      <div class="order-history-card">
+        <div class="order-history-header">
           <div>
-            <h3 style="margin-bottom: 0.25rem;">Order #${order._id.slice(-6).toUpperCase()}</h3>
-            <span style="color: var(--text-secondary); font-size: 0.875rem;">${new Date(order.createdAt).toLocaleDateString()}</span>
+            <h3 class="order-id">Order #${order._id.slice(-6).toUpperCase()}</h3>
+            <span class="order-date">${new Date(order.createdAt).toLocaleDateString()}</span>
           </div>
-          <div style="text-align: right;">
-            <div style="font-weight: 600; font-size: 1.25rem; color: var(--accent);">$${order.total.toFixed(2)}</div>
-            <span style="background: rgba(16, 185, 129, 0.2); color: #10b981; padding: 0.25rem 0.5rem; border-radius: 1rem; font-size: 0.75rem; text-transform: uppercase;">${order.status}</span>
+          <div class="order-summary-price">
+            <div class="order-total-amount">₹${order.total.toFixed(2)}</div>
+            <span class="order-status-badge">${order.status}</span>
           </div>
         </div>
-        <div style="display: grid; gap: 1rem;">
-          ${order.items.map(item => `
-            <div style="display: flex; align-items: center; gap: 1rem;">
-              <img src="${item.image}" alt="${item.name}" style="width: 50px; height: 50px; object-fit: cover; border-radius: 0.5rem;" />
-              <div style="flex: 1;">
-                <div style="font-weight: 500;">${item.name}</div>
-                <div style="color: var(--text-secondary); font-size: 0.875rem;">Qty: ${item.quantity} x $${item.price}</div>
+        <div class="order-items-grid">
+          ${order.items.map(item => {
+            const price = item.price ?? item.product?.price ?? (item.subtotal / item.quantity) ?? 0;
+            return `
+              <div class="order-item-line">
+                <div class="order-item-thumbnail">${item.image || '📦'}</div>
+                <div class="order-item-desc">
+                  <div class="order-item-title">${item.name}</div>
+                  <div class="order-item-qty-price">Qty: ${item.quantity} x ₹${price.toFixed(2)}</div>
+                </div>
+                <div class="order-item-line-subtotal">₹${item.subtotal.toFixed(2)}</div>
               </div>
-              <div style="font-weight: 500;">$${item.subtotal.toFixed(2)}</div>
-            </div>
-          `).join('')}
+            `;
+          }).join('')}
         </div>
       </div>
     `).join('');
 
     mainEl.innerHTML = `
-      <div style="max-width: 800px; margin: 2rem auto; padding: 1rem;">
-        <h2 style="margin-bottom: 2rem;">Order History</h2>
+      <div class="dashboard-container fade-in">
+        <h2 class="dashboard-title">Order History</h2>
         ${ordersHtml}
       </div>
     `;

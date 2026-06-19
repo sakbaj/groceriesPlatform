@@ -65,7 +65,23 @@ export function renderSignupPage() {
     btn.disabled = true;
 
     try {
-      await register(name, email, password);
+      // Mock Registration
+      if (password.length < 6) {
+        throw new Error('Password must be at least 6 characters');
+      }
+      
+      await new Promise(r => setTimeout(r, 800)); // Simulate delay
+      
+      const mockUser = {
+        _id: 'mock_user_' + Math.floor(Math.random() * 10000),
+        name: name,
+        email: email,
+        token: 'mock_jwt_token_12345'
+      };
+      
+      localStorage.setItem('qb_token', mockUser.token);
+      localStorage.setItem('qb_user', JSON.stringify(mockUser));
+      
       showToast('Account created successfully!');
       await fetchCart();
       navigateTo('/');

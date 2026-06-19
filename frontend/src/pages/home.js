@@ -5,12 +5,12 @@
 import * as api from '../api.js';
 import { createProductCard } from '../components/productCard.js';
 import { createCategoryBar } from '../components/categoryBar.js';
-import { createSearchBar } from '../components/searchBar.js';
 import { renderHeader } from '../components/header.js';
 
 let currentCategory = null;
-let currentSearch = '';
+let currentSearch = window.__qb_current_search || '';
 let categories = [];
+let searchListenerAdded = false;
 
 export async function renderHomePage() {
   renderHeader();
@@ -43,28 +43,17 @@ export async function renderHomePage() {
   `;
   main.appendChild(hero);
 
-  // Search
-  const searchBar = createSearchBar(currentSearch, (query) => {
-    currentSearch = query;
-    loadProducts();
-  });
-  main.appendChild(searchBar);
+  // Global search listener
+  if (!searchListenerAdded) {
+    window.addEventListener('qbSearch', (e) => {
+      currentSearch = e.detail;
+      loadProducts();
+    });
+    searchListenerAdded = true;
+  }
 
   // Categories
-  const categoryBar = createCategoryBar(categories, currentCategory, (cat) => {
-    currentCategory = cat;
-    loadProducts();
-    // Re-render category bar to update active state
-    const newCategoryBar = createCategoryBar(categories, currentCategory, arguments.callee === undefined ? () => {} : (c) => {
-      currentCategory = c;
-      loadProducts();
-      renderCategoryBarInPlace();
-    });
-    const existingBar = main.querySelector('.category-bar');
-    if (existingBar) {
-      existingBar.replaceWith(createCategoryBar(categories, currentCategory, handleCategorySelect));
-    }
-  });
+  const categoryBar = createCategoryBar(categories, currentCategory, handleCategorySelect);
   main.appendChild(categoryBar);
 
   // Product count

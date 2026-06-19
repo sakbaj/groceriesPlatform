@@ -14,12 +14,16 @@ export function renderHeader() {
 
   headerEl.innerHTML = `
     <nav class="header">
-      <div class="header-inner" style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+      <div class="header-inner">
         <a href="#/" class="header-logo" id="logo-link">
           <span class="header-logo-icon">🛒</span>
           <span class="header-logo-text">Quickbasket</span>
         </a>
-        <div class="header-nav" style="display: flex; gap: 1.5rem; align-items: center;">
+        <div class="header-search">
+          <span class="header-search-icon">🔍</span>
+          <input type="text" id="global-search-input" class="header-search-input" placeholder="Search for fresh groceries..." value="${window.__qb_current_search || ''}">
+        </div>
+        <div class="header-nav">
           <a href="#/" class="header-nav-link ${currentPath === '/' ? 'active' : ''}">
             <span>Shop</span>
           </a>
@@ -30,7 +34,7 @@ export function renderHeader() {
           ` : `
             <a href="#/login" class="header-nav-link ${currentPath === '/login' ? 'active' : ''}">Login</a>
           `}
-          <a href="#/cart" class="header-nav-link ${currentPath === '/cart' ? 'active' : ''}" style="display: flex; align-items: center; gap: 0.5rem; background: var(--surface); padding: 0.5rem 1rem; border-radius: 2rem; border: 1px solid var(--border);">
+          <a href="#/cart" class="header-nav-link header-cart-btn ${currentPath === '/cart' ? 'active' : ''}">
             <span>🛒</span>
             <span class="cart-badge ${cart.itemCount === 0 ? 'empty' : ''}" id="cart-badge">${cart.itemCount}</span>
           </a>
@@ -38,6 +42,18 @@ export function renderHeader() {
       </div>
     </nav>
   `;
+
+  const searchInput = document.getElementById('global-search-input');
+  if (searchInput) {
+    searchInput.addEventListener('input', (e) => {
+      const val = e.target.value;
+      window.__qb_current_search = val; // Store globally so it persists header re-renders
+      if (window.location.hash !== '#/' && window.location.hash !== '') {
+        window.location.hash = '#/';
+      }
+      window.dispatchEvent(new CustomEvent('qbSearch', { detail: val }));
+    });
+  }
 
   const logoutBtn = document.getElementById('logout-btn');
   if (logoutBtn) {

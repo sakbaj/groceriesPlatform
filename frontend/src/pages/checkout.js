@@ -158,6 +158,14 @@ export async function renderCheckoutPage() {
   document.getElementById('checkout-form')?.addEventListener('submit', async (e) => {
     e.preventDefault();
 
+    // Check if user is logged in
+    const user = api.getUser();
+    if (!user) {
+      showToast('Please login to confirm your order', 'error');
+      navigate('/login');
+      return;
+    }
+
     const btn = document.getElementById('btn-place-order');
     const customerName = document.getElementById('customer-name').value.trim();
     const phone = document.getElementById('customer-phone').value.trim();
@@ -189,11 +197,33 @@ export async function renderCheckoutPage() {
       btn.disabled = true;
       btn.innerHTML = '⏳ Processing...';
 
-      const res = await api.placeOrder({ customerName, phone, address });
-      const order = res.data;
+      // Mock order creation to support local cart
+      const currentCart = store.getState();
+      const order = {
+        _id: Math.random().toString(36).substring(2, 10).toUpperCase(),
+        createdAt: new Date().toISOString(),
+        customerName,
+        phone,
+        address,
+        status: 'Processing',
+        items: currentCart.items.map(i => ({
+          ...i,
+          name: i.product.name,
+          image: i.product.image
+        })),
+        total: currentCart.total
+      };
 
-      // Cart is cleared on server, update local state
-      await store.fetchCart();
+      // Simulate network delay
+      await new Promise(r => setTimeout(r, 1000));
+
+      // Save order to mock local storage
+      const existingOrders = JSON.parse(localStorage.getItem('qb_orders') || '[]');
+      existingOrders.push(order);
+      localStorage.setItem('qb_orders', JSON.stringify(existingOrders));
+
+      // Clear local cart
+      await store.clearAll();
 
       // Show order confirmation
       showOrderConfirmation(main, order);
@@ -209,6 +239,8 @@ export async function renderCheckoutPage() {
 function showOrderConfirmation(main, order) {
   renderHeader();
 
+  const deliveryTime = new Date(Date.now() + 45 * 60000); // 45 mins from now
+
   main.innerHTML = `
     <div class="order-confirmation">
       <div class="order-success-icon">🎉</div>
@@ -221,8 +253,8 @@ function showOrderConfirmation(main, order) {
           <span class="order-detail-value">${order.customerName}</span>
         </div>
         <div class="order-detail-row">
-          <span class="order-detail-label">Phone</span>
-          <span class="order-detail-value">${order.phone}</span>
+          <span class="order-detail-label">Estimated Delivery</span>
+          <span class="order-detail-value" style="color: var(--accent); font-weight: bold;">${deliveryTime.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</span>
         </div>
         <div class="order-detail-row">
           <span class="order-detail-label">Address</span>
@@ -231,10 +263,6 @@ function showOrderConfirmation(main, order) {
         <div class="order-detail-row">
           <span class="order-detail-label">Payment Status</span>
           <span class="order-detail-value" style="color: var(--accent);">✓ Paid</span>
-        </div>
-        <div class="order-detail-row">
-          <span class="order-detail-label">Order Status</span>
-          <span class="order-detail-value" style="color: var(--accent);">✓ ${order.status}</span>
         </div>
         <div class="order-detail-row" style="margin-top: 0.75rem; padding-top: 0.75rem; border-top: 1px solid var(--border-glass);">
           <span class="order-detail-label">Items</span>
@@ -247,7 +275,7 @@ function showOrderConfirmation(main, order) {
           </div>
         `).join('')}
         <div class="order-detail-row" style="margin-top: 0.75rem; padding-top: 0.75rem; border-top: 1px solid var(--border-glass); font-size: 1.1rem; font-weight: 700;">
-          <span>Total</span>
+          <span>Total Paid</span>
           <span style="color: var(--accent);">₹${order.total.toFixed(2)}</span>
         </div>
       </div>

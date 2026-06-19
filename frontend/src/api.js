@@ -128,8 +128,9 @@ export async function placeOrder(customerInfo) {
 }
 
 export async function getOrders() {
-  const res = await fetch(`${API_BASE}/orders`, { headers: getHeaders() });
-  return await res.json();
+  // Use mock local storage for orders
+  const orders = JSON.parse(localStorage.getItem('qb_orders') || '[]');
+  return { success: true, data: orders.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)) };
 }
 
 export async function getOrder(id) {
@@ -140,6 +141,32 @@ export async function getOrder(id) {
 // ---- Analytics ----
 
 export async function getAnalytics() {
-  const res = await fetch(`${API_BASE}/analytics`, { headers: getHeaders() });
-  return await res.json();
+  // Use mock local storage for analytics
+  const orders = JSON.parse(localStorage.getItem('qb_orders') || '[]');
+  
+  const totalOrders = orders.length;
+  const totalRevenue = orders.reduce((sum, order) => sum + order.total, 0);
+
+  const itemCounts = {};
+  orders.forEach(order => {
+    order.items.forEach(item => {
+      if (!itemCounts[item.productId]) {
+        itemCounts[item.productId] = { name: item.name, count: 0 };
+      }
+      itemCounts[item.productId].count += item.quantity;
+    });
+  });
+
+  const popularItems = Object.values(itemCounts)
+    .sort((a, b) => b.count - a.count)
+    .slice(0, 5);
+
+  return {
+    success: true,
+    data: {
+      totalOrders,
+      totalRevenue,
+      popularItems
+    }
+  };
 }

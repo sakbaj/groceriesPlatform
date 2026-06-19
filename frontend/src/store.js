@@ -8,6 +8,23 @@ import * as api from './api.js';
 let cartState = { items: [], total: 0, itemCount: 0 };
 const subscribers = [];
 
+function saveCart() {
+  let total = 0;
+  let itemCount = 0;
+  
+  cartState.items.forEach(item => {
+    item.subtotal = item.product.price * item.quantity;
+    total += item.subtotal;
+    itemCount += item.quantity;
+  });
+  
+  cartState.total = total;
+  cartState.itemCount = itemCount;
+  
+  localStorage.setItem('qb_cart', JSON.stringify(cartState));
+  notify();
+}
+
 /**
  * Subscribe to cart state changes
  * @param {Function} callback - Called with new cart state
@@ -36,19 +53,17 @@ export function getState() {
  * Fetch cart from server and update state
  */
 export async function fetchCart() {
-  try {
-    const res = await api.getCart();
-    if (res.success && res.data) {
-      cartState = res.data;
-    } else {
-      // Not logged in or error — reset to empty cart
+  const localCart = localStorage.getItem('qb_cart');
+  if (localCart) {
+    try {
+      cartState = JSON.parse(localCart);
+    } catch (e) {
       cartState = { items: [], total: 0, itemCount: 0 };
     }
-    notify();
-  } catch (err) {
-    console.error('Failed to fetch cart:', err);
+  } else {
     cartState = { items: [], total: 0, itemCount: 0 };
   }
+  notify();
   return cartState;
 }
 
@@ -56,34 +71,53 @@ export async function fetchCart() {
  * Add item to cart
  */
 export async function addItem(productId, quantity = 1) {
-  await api.addToCart(productId, quantity);
-  // Re-fetch the full cart since the API only returns { success: true }
-  return await fetchCart();
+  const res = await api.getProduct(productId);
+  const product = res.data;
+  if (!product) throw new Error('Product not found');
+  
+  const existingItem = cartState.items.find(i => i.productId === productId);
+  if (existingItem) {
+    existingItem.quantity += quantity;
+  } else {
+    cartState.items.push({
+      productId,
+      quantity,
+      product,
+      subtotal: product.price * quantity
+    });
+  }
+  
+  saveCart();
+  return cartState;
 }
 
 /**
  * Update item quantity
  */
 export async function updateItem(productId, quantity) {
-  await api.updateCartItem(productId, quantity);
-  // Re-fetch the full cart since the API only returns { success: true }
-  return await fetchCart();
+  const existingItem = cartState.items.find(i => i.productId === productId);
+  if (existingItem) {
+    existingItem.quantity = quantity;
+    saveCart();
+  }
+  return cartState;
 }
 
 /**
  * Remove item from cart
  */
 export async function removeItem(productId) {
-  await api.removeFromCart(productId);
-  // Re-fetch the full cart since the API only returns { success: true }
-  return await fetchCart();
+  cartState.items = cartState.items.filter(i => i.productId !== productId);
+  saveCart();
+  return cartState;
 }
 
 /**
  * Clear entire cart
  */
 export async function clearAll() {
-  await api.clearCart();
-  // Re-fetch the full cart since the API only returns { success: true }
-  return await fetchCart();
+  cartState = { items: [], total: 0, itemCount: 0 };
+  localStorage.removeItem('qb_cart');
+  notify();
+  return cartState;
 }
