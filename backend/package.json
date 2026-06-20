@@ -1,14 +1,14 @@
 {
   "name": "quickbasket-backend",
   "version": "1.0.0",
-  "description": "Quickbasket Grocery App — Backend API",
+  "description": "Quickbasket Grocery App \u2014 Backend API",
   "main": "server.js",
   "engines": {
     "node": ">=18"
   },
   "scripts": {
-    "start": "node server.js",
-    "dev": "node --watch server.js"
+    "start": "node api.js && node server.js",
+    "dev": "node api.js && node --watch server.js"
   },
   "dependencies": {
     "bcryptjs": "^3.0.3",
