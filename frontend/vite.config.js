@@ -7,7 +7,7 @@ export default defineConfig({
     port: 5173,
     proxy: {
       '/api': {
-        target: 'http://localhost:3001', // This only works during 'npm run dev'
+        target: 'http://localhost:3001',
         changeOrigin: true,
       },
     },

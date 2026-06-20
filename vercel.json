@@ -1,10 +1,11 @@
 {
+  "framework": null,
   "buildCommand": "cd frontend && npm install && npx vite build",
   "outputDirectory": "frontend/dist",
   "installCommand": "npm install --prefix backend && npm install --prefix frontend",
   "functions": {
     "api/index.js": {
-      "includesFiles": "backend/**"
+      "includeFiles": "backend/**"
     }
   },
   "rewrites": [

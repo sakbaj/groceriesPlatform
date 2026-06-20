@@ -1,7 +1,11 @@
 {
   "name": "groceries-platform-root",
   "version": "1.0.0",
+  "private": true,
   "description": "Root package for running both frontend and backend easily",
+  "engines": {
+    "node": ">=18"
+  },
   "scripts": {
     "dev": "concurrently \"npm run dev --prefix frontend\" \"node backend/server.js\"",
     "build": "npm run build --prefix frontend",
